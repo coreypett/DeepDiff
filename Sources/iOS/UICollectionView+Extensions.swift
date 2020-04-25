@@ -20,11 +20,10 @@ public extension UICollectionView {
   ///   - completion: Called when operation completes
   func reload<T: DiffAware>(
     changes: [Change<T>],
-    section: Int = 0,
     updateData: () -> Void,
     completion: ((Bool) -> Void)? = nil) {
     
-    let changesWithIndexPath = IndexPathConverter().convert(changes: changes, section: section)
+    let changesWithIndexPath = IndexPathConverter.convert(changes: changes)
     
     performBatchUpdates({
       updateData()
