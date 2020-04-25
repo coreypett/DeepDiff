@@ -33,14 +33,14 @@ public class IndexPathConverter {
   
   public init() {}
   
-  public func convert<T>(changes: [Change<T>], section: Int) -> ChangeWithIndexPath {
-    let inserts = changes.compactMap({ $0.insert }).map({ $0.index.toIndexPath(section: section) })
-    let deletes = changes.compactMap({ $0.delete }).map({ $0.index.toIndexPath(section: section) })
-    let replaces = changes.compactMap({ $0.replace }).map({ $0.index.toIndexPath(section: section) })
+  public static func convert<T>(changes: [Change<T>]) -> ChangeWithIndexPath {
+    let inserts = changes.compactMap({ $0.insert }).map({ $0.index.toIndexPath() })
+    let deletes = changes.compactMap({ $0.delete }).map({ $0.index.toIndexPath() })
+    let replaces = changes.compactMap({ $0.replace }).map({ $0.index.toIndexPath() })
     let moves = changes.compactMap({ $0.move }).map({
       (
-        from: $0.fromIndex.toIndexPath(section: section),
-        to: $0.toIndex.toIndexPath(section: section)
+        from: $0.fromIndex.toIndexPath(),
+        to: $0.toIndex.toIndexPath()
       )
     })
     
@@ -55,8 +55,8 @@ public class IndexPathConverter {
 
 extension Int {
   
-  fileprivate func toIndexPath(section: Int) -> IndexPath {
-    return IndexPath(item: self, section: section)
+  fileprivate func toIndexPath() -> IndexPath {
+    return IndexPath(item: 0, section: self)
   }
 }
 #endif
