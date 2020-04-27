@@ -20,11 +20,10 @@ public extension UICollectionView {
   ///   - completion: Called when operation completes
   func reload<T: DiffAware>(
     changes: [Change<T>],
-    section: Int = 0,
     updateData: () -> Void,
     completion: ((Bool) -> Void)? = nil) {
     
-    let changesWithIndexPath = IndexPathConverter().convert(changes: changes, section: section)
+    let changesWithIndexPath = IndexPathConverter.convert(changes: changes)
     
     performBatchUpdates({
       updateData()
@@ -41,23 +40,26 @@ public extension UICollectionView {
   
   private func insideUpdate(changesWithIndexPath: ChangeWithIndexPath) {
     changesWithIndexPath.deletes.executeIfPresent {
-      deleteItems(at: $0)
+        let sections = $0.compactMap { $0.section }
+      deleteSections(IndexSet(sections))
     }
     
     changesWithIndexPath.inserts.executeIfPresent {
-      insertItems(at: $0)
+        let sections = $0.compactMap { $0.section }
+      insertSections(IndexSet(sections))
     }
     
     changesWithIndexPath.moves.executeIfPresent {
       $0.forEach { move in
-        moveItem(at: move.from, to: move.to)
+        moveSection(move.from.section, toSection: move.to.section)
       }
     }
   }
 
   private func outsideUpdate(changesWithIndexPath: ChangeWithIndexPath) {
     changesWithIndexPath.replaces.executeIfPresent {
-      self.reloadItems(at: $0)
+        let sections = $0.compactMap { $0.section }
+        self.reloadSections(IndexSet(sections))
     }
   }
 }

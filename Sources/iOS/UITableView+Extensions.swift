@@ -30,7 +30,7 @@ public extension UITableView {
     updateData: () -> Void,
     completion: ((Bool) -> Void)? = nil) {
     
-    let changesWithIndexPath = IndexPathConverter().convert(changes: changes, section: section)
+    let changesWithIndexPath = IndexPathConverter.convert(changes: changes)
 
     unifiedPerformBatchUpdates({
       updateData()
