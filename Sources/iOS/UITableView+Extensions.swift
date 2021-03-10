@@ -115,7 +115,7 @@ public extension UITableView {
 
     unifiedPerformBatchUpdates({
       updateData()
-      self.insideUpdate(
+      self.insideUpdateSections(
         changesWithIndexPath: changesWithIndexPath,
         insertionAnimation: insertionAnimation,
         deletionAnimation: deletionAnimation
@@ -125,7 +125,7 @@ public extension UITableView {
     })
 
     // reloadRows needs to be called outside the batch
-    outsideUpdate(changesWithIndexPath: changesWithIndexPath, replacementAnimation: replacementAnimation)
+    outsideUpdateSections(changesWithIndexPath: changesWithIndexPath, replacementAnimation: replacementAnimation)
   }
 
   // MARK: - Helper
