@@ -92,4 +92,76 @@ public extension UITableView {
     }
   }
 }
+
+public extension UITableView {
+
+  /// Animate reload in a batch update
+  ///
+  /// - Parameters:
+  ///   - changes: The changes from diff
+  ///   - section: The section that all calculated IndexPath belong
+  ///   - insertionAnimation: The animation for insert rows
+  ///   - deletionAnimation: The animation for delete rows
+  ///   - replacementAnimation: The animation for reload rows
+  ///   - updateData: Update your data source model
+  ///   - completion: Called when operation completes
+  func reloadSections<T: DiffAware>(
+    changes: [Change<T>],
+    insertionAnimation: UITableView.RowAnimation = .automatic,
+    deletionAnimation: UITableView.RowAnimation = .automatic,
+    replacementAnimation: UITableView.RowAnimation = .automatic,
+    updateData: () -> Void,
+    completion: ((Bool) -> Void)? = nil) {
+
+    let changesWithIndexPath = IndexPathConverter.convertSection(changes: changes)
+
+    unifiedPerformBatchUpdates({
+      updateData()
+      self.insideUpdate(
+        changesWithIndexPath: changesWithIndexPath,
+        insertionAnimation: insertionAnimation,
+        deletionAnimation: deletionAnimation
+      )
+    }, completion: { finished in
+      completion?(finished)
+    })
+
+    // reloadRows needs to be called outside the batch
+    outsideUpdate(changesWithIndexPath: changesWithIndexPath, replacementAnimation: replacementAnimation)
+  }
+
+  // MARK: - Helper
+  private func insideUpdateSections(
+    changesWithIndexPath: ChangeWithIndexPath,
+    insertionAnimation: UITableView.RowAnimation,
+    deletionAnimation: UITableView.RowAnimation) {
+
+    changesWithIndexPath.deletes.executeIfPresent {
+        let sections = $0.compactMap { $0.section }
+        deleteSections(IndexSet(sections), with: deletionAnimation)
+    }
+
+    changesWithIndexPath.inserts.executeIfPresent {
+        let sections = $0.compactMap { $0.section }
+        insertSections(IndexSet(sections), with: insertionAnimation)
+    }
+
+    changesWithIndexPath.moves.executeIfPresent {
+      $0.forEach { move in
+        moveSection(move.from.section, toSection: move.to.section)
+      }
+    }
+  }
+
+  private func outsideUpdateSections(
+    changesWithIndexPath: ChangeWithIndexPath,
+    replacementAnimation: UITableView.RowAnimation) {
+
+    changesWithIndexPath.replaces.executeIfPresent {
+        let sections = $0.compactMap { $0.section }
+        reloadSections(IndexSet(sections), with: .automatic)
+    }
+  }
+}
+
 #endif
