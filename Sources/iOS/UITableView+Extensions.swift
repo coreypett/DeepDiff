@@ -46,8 +46,6 @@ public extension UITableView {
     // reloadRows needs to be called outside the batch
     outsideUpdate(changesWithIndexPath: changesWithIndexPath, replacementAnimation: replacementAnimation)
   }
-  
-  // MARK: - Helper
 
   private func unifiedPerformBatchUpdates(
     _ updates: (() -> Void),
